@@ -5,7 +5,8 @@ import './App.css';
 function App() {
   const [file, setFile] = useState(null);
   const [images, setImages] = useState([]);
-  const [successMessage, setSuccessMessage] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     const fetchImages = async () => {
@@ -31,14 +32,17 @@ function App() {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
-        withCredentials: true, // adicione esta opção
+        withCredentials: true,
       });
       console.log(response.data);
       setImages([...images, response.data.image]);
-      setSuccessMessage(true);
       setFile(null);
+      setSuccessMessage('Imagem enviada com sucesso!');
+      setErrorMessage('');
     } catch (err) {
-      console.error(err);
+      console.log(err);
+      setErrorMessage('Erro ao enviar a imagem. Por favor, tente novamente.');
+      setSuccessMessage('');
     }
   };
 
@@ -48,24 +52,29 @@ function App() {
 
   const renderImages = () => {
     return (
-      <ul>
+      <div className="card-container">
         {images.map((image) => (
-          <li key={image.id}>
-            <img src={`/images/${image.path}`} alt={image.file_name} />
-          </li>
+          <div className="card" key={image.id}>
+            <img src={`http://localhost:3002/${image.path}`} alt={image.file_name} className="card-image" />
+          </div>
         ))}
-      </ul>
+      </div>
     );
   };
-  
 
   return (
     <div className="container">
-      <form onSubmit={handleSubmit}>
-        <input type="file" onChange={handleFileChange} />
+      <form onSubmit={handleSubmit} className="form-container">
+        <div className="form-group">
+          <label htmlFor="file-input" className="file-label">
+            Escolher Arquivo
+            <input type="file" id="file-input" onChange={handleFileChange} className="file-input" />
+          </label>
+        </div>
         <button type="submit" className="blue-button">Enviar</button>
       </form>
-      {successMessage && <p>Imagem enviada com sucesso!</p>}
+      {successMessage && <p className="success-message">{successMessage}</p>}
+      {errorMessage && <p className="error-message">{errorMessage}</p>}
       {renderImages()}
     </div>
   );

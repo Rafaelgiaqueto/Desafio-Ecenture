@@ -3,12 +3,12 @@ const router = express.Router(); // Cria um objeto de roteador para definir as r
 const db = require('../db.js'); // Importa o módulo de acesso ao banco de dados
 const multer = require('multer'); // Importa o módulo Multer, responsável por lidar com o upload de arquivos
 const storage = multer.memoryStorage(); // Configura o armazenamento em memória para os arquivos enviados
-const upload = multer({ storage: storage }); // Cria um middleware de upload usando as configurações de armazenamento
+const upload = require('./config/multer.js'); // Importa a configuração do multer
 
 router.post("/posts", upload.single("file_name"), async (req, res) => {
   try {
-    const { file_name } = req.file;
-    const result = await db.query('INSERT INTO images (file_name, path, created_at) VALUES ($1, $2, $3) RETURNING *', [file_name, req.file.path, new Date()]);
+    const { originalname } = req.file;
+    const result = await db.query('INSERT INTO images (file_name, path, created_at) VALUES ($1, $2, $3) RETURNING *', [originalname, req.file.path, new Date()]);
     const image = result.rows[0];
     res.json({ image, message: 'Arquivo enviado com sucesso' });
   } catch (err) {

@@ -1,31 +1,23 @@
 const multer = require('multer');
 const path = require('path');
-const crypto = require('crypto');
 
-const dest = path.resolve(__dirname, '..', '..', 'tmp', 'uploads');
 
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, dest);
-  },
+  destination: "./tmp/uploads",
   filename: (req, file, cb) => {
-    crypto.randomBytes(16, (err, buffer) => {
-      if (err) {
-        cb(err);
-      } else {
-        const fileName = `${buffer.toString('hex')}-${file.originalname}`;
-        cb(null, fileName);
-      }
-    });
-  },  
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const originalExtension = path.extname(file.originalname);
+    cb(null, uniqueSuffix + originalExtension);
+  },
 });
+
 
 const upload = multer({
   storage,
   limits: {
-    fileSize: 10 * 1024 * 1024,
+    fileSize: 1000 * 1024 * 1024,
   },
-  fileFilter: (file, cb) => {
+  fileFilter: (req, file, cb) => {
     const allowedMimes = [
       'image/jpg',
       'image/jpeg',
