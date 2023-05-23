@@ -5,7 +5,8 @@
 ### Backend
 - Primerio crie um banco de dados `Postgresql`  
 - Use `npm install` para instalar as dependencias do node
-_Para conexão com banco de dados_ 
+- Crie uma pasta "tmp" e dentro dela outra pasta "uploads" para armazenar as imagens
+- Para conexão com banco de dados_ 
 Entre no arquivo `db.js`
  - host: '_O ip do banco de dados_'
  - databse: '_O nome do banco de dados_'
