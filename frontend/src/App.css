@@ -41,12 +41,6 @@
   cursor: pointer;
 }
 
-.success-message {
-  color: green;
-  font-weight: bold;
-  margin-bottom: 20px;
-}
-
 .card-container {
   display: flex;
   flex-wrap: wrap;
@@ -55,7 +49,8 @@
 }
 
 .card {
-  width: 300px;
+  width: 200px;
+  height: 200px;
   border: 1px solid #ccc;
   border-radius: 5px;
   overflow: hidden;
@@ -63,6 +58,8 @@
 
 .card-image {
   width: 100%;
-  height: 200px;
-  object-fit: cover;
+  height: 100%;
+  object-fit: contain;
+  max-width: 100%;
+  max-height: 100%;
 }

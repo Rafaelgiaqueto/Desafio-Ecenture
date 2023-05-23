@@ -1,83 +1,81 @@
 import React, { useState, useEffect } from 'react';
-import api from './api';
+import axios from 'axios';
 import './App.css';
 
-function App() {
+const FileUpload = () => {
   const [file, setFile] = useState(null);
-  const [images, setImages] = useState([]);
-  const [successMessage, setSuccessMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [message, setMessage] = useState('');
 
-  useEffect(() => {
-    const fetchImages = async () => {
-      try {
-        const response = await api.get('/images');
-        setImages(response.data.images);
-      } catch (err) {
-        console.error(err);
-      }
-    };
+  const handleFileChange = (event) => {
+    setFile(event.target.files[0]);
+  };
 
-    fetchImages();
-  }, []);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const formData = new FormData();
-    formData.append('file_name', file);
-
+  const handleUpload = async () => {
     try {
-      const response = await api.post('/posts', formData, {
+      const formData = new FormData();
+      formData.append('file_name', file);
+
+      const response = await axios.post('http://localhost:3002/posts', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
-        withCredentials: true,
       });
-      console.log(response.data);
-      setImages([...images, response.data.image]);
-      setFile(null);
-      setSuccessMessage('Imagem enviada com sucesso!');
-      setErrorMessage('');
-    } catch (err) {
-      console.log(err);
-      setErrorMessage('Erro ao enviar a imagem. Por favor, tente novamente.');
-      setSuccessMessage('');
+
+      setMessage(response.data.message);
+    } catch (error) {
+      console.error(error);
+      setMessage('Erro ao enviar arquivo');
     }
   };
 
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+  return (
+    <div className="form-container">
+      <div className="form-group">
+        <label htmlFor="file-input" className="file-label">
+          Escolher Arquivo
+          <input type="file" id="file-input" onChange={handleFileChange} className="file-input" />
+        </label>
+      </div>
+      <button onClick={handleUpload} className="blue-button">Enviar</button>
+      <p>{message}</p>
+    </div>
+  );
+};
+
+const ImageList = ({ images }) => {
+  return (
+    <div className="card-container">
+      {images.map((image) => (
+        <div className="card" key={image.id}>
+          <img src={`http://localhost:3002/${image.path}`} alt={image.file_name} className="card-image" />
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const App = () => {
+  const [images, setImages] = useState([]);
+
+  const fetchImages = async () => {
+    try {
+      const response = await axios.get('http://localhost:3002/images');
+      setImages(response.data.images);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  const renderImages = () => {
-    return (
-      <div className="card-container">
-        {images.map((image) => (
-          <div className="card" key={image.id}>
-            <img src={`http://localhost:3002/${image.path}`} alt={image.file_name} className="card-image" />
-          </div>
-        ))}
-      </div>
-    );
-  };
+  useEffect(() => {
+    fetchImages();
+  }, []);
 
   return (
     <div className="container">
-      <form onSubmit={handleSubmit} className="form-container">
-        <div className="form-group">
-          <label htmlFor="file-input" className="file-label">
-            Escolher Arquivo
-            <input type="file" id="file-input" onChange={handleFileChange} className="file-input" />
-          </label>
-        </div>
-        <button type="submit" className="blue-button">Enviar</button>
-      </form>
-      {successMessage && <p className="success-message">{successMessage}</p>}
-      {errorMessage && <p className="error-message">{errorMessage}</p>}
-      {renderImages()}
+      <FileUpload />
+      <ImageList images={images} />
     </div>
   );
-}
+};
 
 export default App;
